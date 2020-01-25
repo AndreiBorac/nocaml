@@ -573,7 +573,8 @@ def code_generate_ocaml(node, enclosing)
     formals = node[3];
     funbody = node[4];
     enclosing = "wombat_defun_#{c_ify(funname)}";
-    $ocaml_impl << "let rec #{enclosing} #{formals.join(" ")} = #{code_generate_ocaml(funbody, enclosing)};;";
+    formals2 = formals.map{|i| c_ify(i); };
+    $ocaml_impl << "let rec #{enclosing} #{formals2.join(" ")} = #{code_generate_ocaml(funbody, enclosing)};;";
     return nil;
   when :identifier
     if ($available[node.object_id].include?(node[1]))
@@ -613,7 +614,8 @@ def code_generate_ocaml(node, enclosing)
     out = [];
     out << "(match #{code_generate_ocaml(expr, enclosing)} with";
     cases.each{|constructor, bindings, expr2|
-      out << "| Wombat_#{constructor} #{parens_maybe.call(bindings.join(", "))} -> #{code_generate_ocaml(expr2, enclosing)}";
+      bindings2 = bindings.map{|i| c_ify(i); };
+      out << "| Wombat_#{constructor} #{parens_maybe.call(bindings2.join(", "))} -> #{code_generate_ocaml(expr2, enclosing)}";
     };
     out << ")";
     return out.join("\n");
@@ -669,7 +671,8 @@ def code_generate_ocamlx(node, enclosing)
     funbody = node[4];
     enclosing = "wombatx_defun_#{c_ify(funname)}";
     tmp2 = ($ocaml_ctr += 1);
-    u = parens_maybe.call("#{formals.join(",")}");
+    formals2 = formals.map{|i| c_ify(i); };
+    u = parens_maybe.call("#{formals2.join(",")}");
     $ocaml_impl << "let rec #{enclosing} wombatx_args_#{tmp2} = (match wombatx_args_#{tmp2} with (WombatxVector#{formals.length} #{u}) -> #{code_generate_ocamlx(funbody, enclosing)});;";
     return nil;
   when :identifier
@@ -712,7 +715,8 @@ def code_generate_ocamlx(node, enclosing)
     out = [];
     out << "(match #{code_generate_ocamlx(expr, enclosing)} with";
     cases.each{|constructor, bindings, expr2|
-      out << "| Wombatx_#{constructor} #{parens_maybe.call(bindings.join(", "))} -> #{code_generate_ocamlx(expr2, enclosing)}";
+      bindings2 = bindings.map{|i| c_ify(i); };
+      out << "| Wombatx_#{constructor} #{parens_maybe.call(bindings2.join(", "))} -> #{code_generate_ocamlx(expr2, enclosing)}";
     };
     out << ")";
     return out.join("\n");
@@ -871,7 +875,7 @@ def code_generate(node, enclosing)
       maybe_else = "  else" if (!first); first = false;
       out << "#{maybe_else}  if (wombat_tmp#{tmp}_0 == WOMBAT_CONSTRUCTOR_#{constructor}) {";
       bindings.each_with_index{|symbol, index|
-        out << "    uintptr_t* #{symbol} WOMBAT_UNUSED = ((uintptr_t*)(wombat_tmp#{tmp}[1+#{index}]));";
+        out << "    uintptr_t* #{c_ify(symbol)} WOMBAT_UNUSED = ((uintptr_t*)(wombat_tmp#{tmp}[1+#{index}]));";
       };
       out << "    wombat_retv = #{code_generate(expr2, enclosing)};";
       out << "  }";
@@ -930,6 +934,10 @@ def code_generate(node, enclosing)
       };
       raise if (!(exprs.length > 0));
       arity = (exprs.length - 1);
+      # ugh. this can actually result in allocating entries even if
+      # the program doesn't use them. oh well. shouldn't have a
+      # performance impact.
+      $c_lambda_constructors << [ arity, 0 ];
       out << "#ifndef WOMBAT_UNSAFE_OPTIMIZATIONS";
       out << "  if (!((WOMBAT_CONSTRUCTOR_LAMBDA_#{arity}_LO <= wombat_tmp#{tmp}_0[0]) && (wombat_tmp#{tmp}_0[0] <= WOMBAT_CONSTRUCTOR_LAMBDA_#{arity}_HI))) {";
       out << "    wombat_panic(wombat_external, wombat_tmp#{tmp}_0);";
@@ -1113,7 +1121,7 @@ def main()
   finale << "#include <stddef.h>";
   finale << "#include <stdint.h>";
   finale << "#define WOMBAT_UNUSED __attribute__((unused))";
-  finale << "#define WOMBAT_BUILTIN __attribute__((noinline))";
+  finale << "#define WOMBAT_BUILTIN __attribute__((unused,noinline))";
   finale << "typedef struct {";
   finale << "} WombatExternal;";
   finale << "static inline uintptr_t* wombat_malloc(WombatExternal* wombat_external, uintptr_t wombat_len);";

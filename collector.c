@@ -200,7 +200,7 @@ static void collector_gc_with_stack(CollectorExternal* ce, uintptr_t* sp_lo, uin
       
       if ((ptr <= pv) && (pv < end)) {
         if (smap_fin == ce->smap.end) {
-          wombat_panic((&(ce->wombat)), NULL);
+          wombat_panic((&(ce->wombat)), ((uintptr_t*)(__LINE__)));
         }
         
 #ifdef COLLECTOR_INFO
@@ -442,7 +442,7 @@ void collector_gc_firewall_exterior(CollectorExternal* ce)
   if (ce->call.sp_in == NULL) {
     // a panic here means we ran out of space while not executing any
     // Nocaml code. it is not possible to GC in this case.
-    wombat_panic((&(ce->wombat)), NULL);
+    wombat_panic((&(ce->wombat)), ((uintptr_t*)(__LINE__)));
     while (1);
   }
   
@@ -533,7 +533,7 @@ static uintptr_t* collector_malloc_failed(CollectorExternal* ce, uintptr_t len)
   uintptr_t* out = (ce->heap.ptr -= len);
   
   if (out < ce->heap.bas) {
-    wombat_panic((&(ce->wombat)), NULL);
+    wombat_panic((&(ce->wombat)), ((uintptr_t*)(__LINE__)));
     while (1);
   } else {
 #ifdef COLLECTOR_INFO

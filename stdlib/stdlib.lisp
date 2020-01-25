@@ -1,6 +1,7 @@
 ;; copyright (c) 2020 by Andrei Borac
 
 (require "stdlib.rb")
+(require "scraped.rb")
 
 (defun not (x)
   (case x
@@ -46,6 +47,10 @@
       (blob-copy-range output zero len-a a zero)
       (blob-copy-range output len-a len-b b zero))))
 
+(defun blob-extract-range (input off len)
+  (let ((output (Blob len)))
+    (blob-copy-range output zero len input off)))
+
 (defun foldl (f z l)
   (case l
         ((ListFini)
@@ -62,3 +67,6 @@
 
 (defun replicate (n e)
   (replicate-rec n e list-fini))
+
+(defun int-negate (x)
+  (int-sub zero x (Integer)))
