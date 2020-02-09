@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# -*- mode: ruby; -*-
-
-# scraper.rb
+# -*- mode: ruby; coding: binary -*-
+# frozen_string_literal: true
 # copyright (c) 2020 by Andrei Borac
 
 NIL2=\

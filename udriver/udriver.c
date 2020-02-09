@@ -1,5 +1,9 @@
 /* copyright (c) 2020 by Andrei Borac */
 
+#include <inttypes.h>
+
+static void driver_fdprintf(uintptr_t fd, char const* fmt, ...);
+
 #define WOMBAT_UNSAFE_OPTIMIZATIONS
 #include "wombat.c"
 #define COLLECTOR_UNSAFE_OPTIMIZATIONS
@@ -25,6 +29,20 @@ static void* memcpy(void* dest, void const* src, size_t n)
   }
   
   return dest;
+}
+
+static int memcmp(void const* s1, void const* s2, size_t n)
+{
+  for (size_t i = 0; i < n; i++) {
+    char c1 = ((char const*)(s1))[i];
+    char c2 = ((char const*)(s2))[i];
+    
+    if (c1 != c2) {
+      return ((c1 < c2) ? (-1) : (+1));
+    }
+  }
+  
+  return 0;
 }
 
 uintptr_t sy6(uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5, uintptr_t arg6, uintptr_t arg0);

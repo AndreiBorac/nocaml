@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# -*- mode: ruby; -*-
-
-# wombat.rb
+# -*- mode: ruby; coding: binary -*-
+# frozen_string_literal: true
 # copyright (c) 2020 by Andrei Borac
 
 NIL2=\
@@ -801,16 +800,34 @@ def code_generate(node, enclosing)
     elsif ($globals[node[1]])
       case $globals[node[1]]
       when :constructor
+        raise("not yet implemented -- can't use a constructor as a function variable");
         return "wombat_lambda_constructor_#{c_ify(node[1])}";
       when :native_constructor
+        raise("not yet implemented -- can't use a (native) constructor as a function variable");
         return "wombat_lambda_native_constructor_#{c_ify(node[1])}";
       when :primordial
         # swallow const here; it's just too much work to make everything const-correct
         return "((uintptr_t*)(wombat_primordial_#{c_ify(node[1])}))";
       when :builtin
-        return "wombat_lambda_builtin_#{c_ify(node[1])}";
+        bindings_length = $builtins[node[1]];
+        $c_lambda_constructors << [ bindings_length, 0 ];
+        args = [
+          "wombat_external",
+          "WOMBAT_CONSTRUCTOR_LAMBDA_#{bindings_length}_0",
+          "((uintptr_t*)(wombat_builtin_#{c_ify(node[1])}))",
+        ];
+        $c_constructors << 2;
+        return "(wombat_constructor_2(#{args.join(", ")}))";
       when :defun
-        return "wombat_lambda_defun_#{c_ify(node[1])}";
+        bindings_length = $defuns[node[1]];
+        $c_lambda_constructors << [ bindings_length, 0 ];
+        args = [
+          "wombat_external",
+          "WOMBAT_CONSTRUCTOR_LAMBDA_#{bindings_length}_0",
+          "((uintptr_t*)(wombat_defun_#{c_ify(node[1])}))",
+        ];
+        $c_constructors << 2;
+        return "(wombat_constructor_2(#{args.join(", ")}))";
       else
         raise;
       end
@@ -832,25 +849,27 @@ def code_generate(node, enclosing)
              bindings.map{|bind| "uintptr_t* wombat_parameter_#{c_ify(bind)}"; };
     tmp = ($ctr += 1);
     $c_lambda_decl << "static inline uintptr_t* wombat_lambda_#{tmp}(#{params.join(", ")});";
-    $c_lambda_impl << "static inline uintptr_t* wombat_lambda_#{tmp}(#{params.join(", ")}) {";
+    atomic = [];
+    atomic << "static inline uintptr_t* wombat_lambda_#{tmp}(#{params.join(", ")}) {";
     context.each_with_index{|variable, index|
       raise if (bindings.include?(variable));
-      $c_lambda_impl << "  {";
-      $c_lambda_impl << "    uintptr_t* #{c_ify(variable)} WOMBAT_UNUSED = ((uintptr_t*)(wombat_context[#{2+index}]));";
+      atomic << "  {";
+      atomic << "    uintptr_t* #{c_ify(variable)} WOMBAT_UNUSED = ((uintptr_t*)(wombat_context[#{2+index}]));";
     };
     bindings.each{|variable|
-      $c_lambda_impl << "  {";
-      $c_lambda_impl << "    uintptr_t* #{c_ify(variable)} WOMBAT_UNUSED = wombat_parameter_#{c_ify(variable)};";
+      atomic << "  {";
+      atomic << "    uintptr_t* #{c_ify(variable)} WOMBAT_UNUSED = wombat_parameter_#{c_ify(variable)};";
     };
     expression = code_generate(expression, "wombat_lambda_#{tmp}");
-    $c_lambda_impl << "    return #{expression};";
+    atomic << "    return #{expression};";
     bindings.each{|variable|
-      $c_lambda_impl << "  }";
+      atomic << "  }";
     };
     context.each_with_index{|variable, index|
-      $c_lambda_impl << "  }";
+      atomic << "  }";
     };
-    $c_lambda_impl << "}";
+    atomic << "}";
+    $c_lambda_impl += atomic;
     $c_lambda_constructors << [ bindings.length, context.length ];
     contextuals = context.map{|i| "#{c_ify(i)}"; };
     args = [

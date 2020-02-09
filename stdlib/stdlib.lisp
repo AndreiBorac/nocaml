@@ -38,6 +38,16 @@
 (defun filter (pred list)
   (reverse (filter-reverse pred list)))
 
+(defun map-reverse-rec (xlat list accu)
+  (case list
+        ((ListFini)
+         accu)
+        ((ListCons head tail)
+         (selfcall xlat tail (ListCons (xlat head) accu)))))
+
+(defun map (xlat list)
+  (reverse (map-reverse-rec xlat list list-fini)))
+
 (defun blob-append-2 (a b)
   (let ((len-a (blob-length a (Integer)))
         (len-b (blob-length b (Integer)))
@@ -51,12 +61,32 @@
   (let ((output (Blob len)))
     (blob-copy-range output zero len input off)))
 
+(defun iter (f l)
+  (case l
+        ((ListFini)
+         unit)
+        ((ListCons head tail)
+         (progn
+           (f head)
+           (iter f tail)))))
+
 (defun foldl (f z l)
   (case l
         ((ListFini)
          z)
         ((ListCons head tail)
          (foldl f (f z head) tail))))
+
+(defun foldr (f l z)
+  (foldl (lambda (a e) (f e a)) z (reverse l)))
+
+;;(defun concat-all-reverse (ls)
+;; (foldl (lambda (a e) (concat (reverse e) a)) list-fini ls))
+;;(defun concat-all (ls)
+;;  (reverse (concat-all-reverse ls)))
+
+(defun concat-all (ls)
+  (foldr concat ls list-fini))
 
 (defun replicate-rec (n e accu)
   (case (int-gt n zero)
@@ -70,3 +100,18 @@
 
 (defun int-negate (x)
   (int-sub zero x (Integer)))
+
+(defun list-eq (elm-eq al bl)
+  (case al
+        ((ListFini)
+         (case bl
+               ((ListFini) true)
+               ((ListCons bh bt) false)))
+        ((ListCons ah at)
+         (case bl
+               ((ListFini) false)
+               ((ListCons bh bt)
+                (case (elm-eq ah bh)
+                      ((False) false)
+                      ((True) (list-eq elm-eq at bt))))))))
+

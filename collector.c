@@ -5,7 +5,9 @@
 
 #include <stdbool.h>
 #include <inttypes.h>
+#ifdef COLLECTOR_INFO
 #include <stdio.h>
+#endif
 
 #define COLLECTOR_PTRDIFF(x, y) ((uintptr_t)((x) - (y)))
 
