@@ -1,7 +1,7 @@
 ;; copyright (c) 2020 by andrei borac
 
 (require "stdlib.lisp")
-(require "stderr.lisp")
+(require "stdopt.lisp")
 (require "stdio.lisp")
 
 (defun main (argv envp)

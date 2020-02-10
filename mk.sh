@@ -83,8 +83,12 @@ then
     $CB_CC $CB_CFLAGS $CB_CFLAGS_SCRAPER -o ./scraper{,.c}
     $CB_EMU ./scraper >./scraped.rb
     cp ./../../stdlib/*.{lisp,rb,c} .
-    cp ./../../programs/udriver/"$i"/*.lisp .
+    (
+      shopt -s nullglob
+      cp ./../../programs/udriver/"$i"/*.{lisp,rb} .
+    )
     ./../../wombat.rb ./main.lisp
+    pwd
     ocamlc -c ./wombat.ml
     # the compilation below is not expected to succeed; it is merely
     # used to verify the wombat translation. the only errors reported
@@ -113,7 +117,7 @@ then
     CB_EMU=qemu-mipsel-static
   }
   
-  for i in 001 002
+  for i in 001-true 002-progname 003-dumpargs 004-unit
   do
     for a in amd64 mipsel
     do
@@ -124,7 +128,7 @@ then
         crossbuild_"$a"
         crossbuild
         echo "$i"-"$a"
-        $CB_EMU ./main first_argument second_argument third_argument
+        CB_EMU="$CB_EMU" bash ./../../programs/udriver/"$i"/test.sh
       )
     done
   done

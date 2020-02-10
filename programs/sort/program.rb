@@ -1,4 +1,6 @@
 #!/usr/bin/env false
+# coding: binary
+# frozen_string_literal: true
 # copyright (c) 2020 by Andrei Borac
 
 wombat_register_constructor("Pair", 2);
