@@ -3,6 +3,8 @@
 # frozen_string_literal: true
 # copyright (c) 2020 by Andrei Borac
 
+wombat_register_c_file("stdio.c");
+
 stdlib_register_integer_primordial("int-22", 22);
 stdlib_register_integer_primordial("int-65536", 65536);
 

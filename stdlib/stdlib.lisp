@@ -1,7 +1,6 @@
 ;; copyright (c) 2020 by Andrei Borac
 
 (require "stdlib.rb")
-(require "scraped.rb")
 
 (defun not (x)
   (case x
@@ -79,11 +78,6 @@
 
 (defun foldr (f l z)
   (foldl (lambda (a e) (f e a)) z (reverse l)))
-
-;;(defun concat-all-reverse (ls)
-;; (foldl (lambda (a e) (concat (reverse e) a)) list-fini ls))
-;;(defun concat-all (ls)
-;;  (reverse (concat-all-reverse ls)))
 
 (defun concat-all (ls)
   (foldr concat ls list-fini))

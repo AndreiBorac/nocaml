@@ -57,87 +57,131 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_blob_minus_copy_minus_range(Womb
   return dst;
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_eq(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_eq(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return ((cella[1] == cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((cella[1] == cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lt(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lt(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return ((cella[1] < cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((cella[1] < cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lte(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lte(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return ((cella[1] <= cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((cella[1] <= cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gt(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gt(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return ((cella[1] > cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((cella[1] > cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gte(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gte(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return ((cella[1] >= cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((cella[1] >= cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_add(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_add(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
 {
   STDLIB_CHECK_TOP(cellc);
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    cellc[1] = (cella[1] + cellb[1]);
-    return cellc;
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] + cellb[1]);
+  return cellc;
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_sub(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_sub(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
 {
   STDLIB_CHECK_TOP(cellc);
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    cellc[1] = (cella[1] - cellb[1]);
-    return cellc;
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] - cellb[1]);
+  return cellc;
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_min(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_or(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return (cella[1] < cellb[1] ? cella : cellb);
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] | cellb[1]);
+  return cellc;
 }
 
-WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_max(WombatExternal* wombat_external, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_and(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
 {
-  if ((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer) && (cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer)) {
-    return (cella[1] > cellb[1] ? cella : cellb);
-  } else {
-    wombat_panic(wombat_external, NULL);
-  }
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] & cellb[1]);
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_xor(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] ^ cellb[1]);
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_shrl(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] >> cellb[1]);
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_shra(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = ((uintptr_t)(((intptr_t)(cella[1])) >> cellb[1]));
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_shl(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] << cellb[1]);
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_min(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return (cella[1] < cellb[1] ? cella : cellb);
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_max(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return (cella[1] > cellb[1] ? cella : cellb);
 }

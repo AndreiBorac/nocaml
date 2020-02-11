@@ -1,14 +1,14 @@
-;; copyright (c) 2020 by andrei borac
+;; copyright (c) 2020 by Andrei Borac
 
 (require "stdio.rb")
 
 (defun stdio-new ()
   (StandardIO (Blob int-65536)))
 
-(defun stdio-fail-fast (err) ;; => 'a
-  (case err
+(defun stdio-fail-fast (opt) ;; => 'a
+  (case opt
         ((OptionSuccess a) a)
-        ((OptionFailure errno) (system-exit one)))) ;; TODO: print errno
+        ((OptionFailure errno) (abort)))) ;; TODO: print errno
 
 (defun stdio-read (stdio-object fd count) ;; => OptionSuccess blob:Blob | OptionFailure errno:Integer
   (case stdio-object

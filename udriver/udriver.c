@@ -93,8 +93,45 @@ asm(".text\n"
 
 #endif
 
-#include "stdlib.c"
-#include "stdio.c"
+#ifdef UDRIVER_ARCH_ARM_LINUX_EABI_THUMB
+
+asm(".text\n"
+    ".global sy6\n"
+    ".thumb_func\n"
+    "sy6:\n"
+    "push {r4, r5, r7, lr}\n"
+    "add r4, sp, #16\n"
+    "ldmia r4, {r4, r5, r7}\n"
+    "svc 0\n"
+    "pop {r4, r5, r7, pc}\n");
+
+#define SYS_exit 1
+#define SYS_read 3
+#define SYS_write 4
+#define SYS_mmap 192 // use mmap2
+
+#define PROT_READ 1
+#define PROT_WRITE 2
+#define MAP_SHARED 1
+#define MAP_ANONYMOUS 32
+
+#endif
+
+#define HOST_IS_LINUX
+#define DRIVER_ABORT_FUNC driver_abort
+
+__attribute__((noreturn)) static void driver_exit(uintptr_t code)
+{
+  sy6(code, 0, 0, 0, 0, 0, SYS_exit);
+  while (1);
+}
+
+__attribute__((unused)) static void driver_abort(void)
+{
+  driver_exit(2);
+}
+
+#include "wombat.include.c"
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -103,12 +140,6 @@ asm(".text\n"
 
 #define UNUSED __attribute__((unused))
 #define NOINLINE __attribute__((noinline))
-
-__attribute__((noreturn)) static void driver_exit(uintptr_t code)
-{
-  sy6(code, 0, 0, 0, 0, 0, SYS_exit);
-  while (1);
-}
 
 static void driver_write_fully_ignore(uintptr_t fd, void const* mem, uintptr_t len)
 {
@@ -135,6 +166,36 @@ static uintptr_t driver_strlen(char const* x)
   return ((uintptr_t)(x - begin));
 }
 
+#ifdef UDRIVER_ARCH_ARM_LINUX_EABI_THUMB
+
+static void driver_divmod10(uintptr_t x, uintptr_t* q, uintptr_t* r)
+{
+  uintptr_t o = 0;
+  
+  while (x >= 1000000000) { o += 100000000; x -= 1000000000; }
+  while (x >=  100000000) { o +=  10000000; x -=  100000000; }
+  while (x >=   10000000) { o +=   1000000; x -=   10000000; }
+  while (x >=    1000000) { o +=    100000; x -=    1000000; }
+  while (x >=     100000) { o +=     10000; x -=     100000; }
+  while (x >=      10000) { o +=      1000; x -=      10000; }
+  while (x >=       1000) { o +=       100; x -=       1000; }
+  while (x >=        100) { o +=        10; x -=        100; }
+  while (x >=         10) { o +=         1; x -=         10; }
+  
+  *q = o;
+  *r = x;
+}
+
+#else
+
+static void driver_divmod10(uintptr_t x, uintptr_t* q, uintptr_t* r)
+{
+  *q = (x / 10);
+  *r = (x % 10);
+}
+
+#endif
+
 static char const* driver_utoa(uintptr_t x)
 {
   static char buf[21]; // 64 bit maximum
@@ -147,7 +208,9 @@ static char const* driver_utoa(uintptr_t x)
     *(--end) = '0';
   } else {
     while (x) {
-      uintptr_t r = x % 10; x /= 10;
+      uintptr_t q, r;
+      driver_divmod10(x, &q, &r);
+      x = q;
       *(--end) = ((char)(r + '0'));
     }
   }
@@ -377,36 +440,6 @@ static void driver_main(uintptr_t argc, char const* const* argv, char const* con
   driver_exit(nocaml_retv[1]);
 }
 
-#ifdef UDRIVER_ARCH_X86_64_LINUX
-
-void shim(uintptr_t* rsp)
-{
-  uintptr_t argc = *rsp;
-  
-  assure(argc <= (1UL << 16));
-  
-  char const* const* argv = ((char const* const*)(rsp + 1));
-  
-  assure((*(rsp + 1 + argc)) == 0);
-  
-  char const* const* envp = ((char const* const*)(rsp + 1 + argc + 1));
-  
-  driver_main(argc, argv, envp);
-}
-
-asm(".text\n"
-    ".global _start\n"
-    "_start:\n"
-    "movq %rsp, %rdi\n"
-    "callq shim\n"
-    "end:\n"
-    "jmp end\n");
-
-#endif
-
-
-#ifdef UDRIVER_ARCH_MIPSEL_LINUX_O32
-
 void shim(uintptr_t* sp)
 {
   uintptr_t argc = *sp;
@@ -421,6 +454,20 @@ void shim(uintptr_t* sp)
   
   driver_main(argc, argv, envp);
 }
+
+#ifdef UDRIVER_ARCH_X86_64_LINUX
+
+asm(".text\n"
+    ".global _start\n"
+    "_start:\n"
+    "movq %rsp, %rdi\n"
+    "callq shim\n"
+    "end:\n"
+    "jmp end\n");
+
+#endif
+
+#ifdef UDRIVER_ARCH_MIPSEL_LINUX_O32
 
 asm(".text\n"
     ".global __start\n"
@@ -438,5 +485,18 @@ asm(".text\n"
     "nop\n"
     "end:\n"
     "j end\n");
+
+#endif
+
+#ifdef UDRIVER_ARCH_ARM_LINUX_EABI_THUMB
+
+asm(".text\n"
+    ".global _start\n"
+    ".thumb_func\n"
+    "_start:\n"
+    "mov r0, sp\n"
+    "bl shim\n"
+    "end:\n"
+    "b end\n");
 
 #endif

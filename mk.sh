@@ -17,7 +17,7 @@ shift || true
 
 if [ "$ARGKEY" == "" ]
 then
-  echo "please specify one of: sort, udriver"
+  echo "please specify one of: sort, udriver, stm32f0discovery"
 fi
 
 if [ "$ARGKEY" == "sort" ]
@@ -117,9 +117,18 @@ then
     CB_EMU=qemu-mipsel-static
   }
   
-  for i in 001-true 002-progname 003-dumpargs 004-unit
+  function crossbuild_armthumb()
+  {
+    CB_CC=arm-linux-gnueabihf-gcc
+    CB_CFLAGS="-Os -Werror -Wall -Wextra -Wconversion -Wno-unused-const-variable -fno-strict-aliasing -mthumb"
+    CB_CFLAGS_SCRAPER="-static"
+    CB_CFLAGS_FINAL="-DCOLLECTOR_SHAM=5 -DCOLLECTOR_ARCH_ARM_EABI_THUMB -DUDRIVER_ARCH_ARM_LINUX_EABI_THUMB -nostartfiles -nodefaultlibs -static"
+    CB_EMU=qemu-arm-static
+  }
+  
+  for i in 001-true 002-progname 003-dumpargs 004-assert 999-unit
   do
-    for a in amd64 mipsel
+    for a in amd64 mipsel armthumb
     do
       (
         echo "$i"-"$a"
@@ -131,6 +140,53 @@ then
         CB_EMU="$CB_EMU" bash ./../../programs/udriver/"$i"/test.sh
       )
     done
+  done
+fi
+
+if [ "$ARGKEY" == "stm32f0discovery" ]
+then
+  CB_TC=arm-none-eabi
+  CB_CC="$CB_TC"-gcc
+  CB_AS="$CB_TC"-as
+  CB_LD="$CB_TC"-ld
+  CB_OC="$CB_TC"-objcopy
+  CB_OD="$CB_TC"-objdump
+  CB_LL_FLAGS="-mcpu=cortex-m0 -mthumb"
+  CB_CC_FLAGS="$CB_LL_FLAGS -Os -Werror -Wall -Wextra -Wconversion -fno-strict-aliasing"
+  CB_AS_FLAGS="$CB_LL_FLAGS"
+  
+  for i in 001-blinky 002-testcon
+  do
+    (
+      mkdir -p ./"$i"
+      cd ./"$i"
+      (
+        shopt -s nullglob
+        cp ./../../stdlib/*.{lisp,rb,c,txt} .
+        cp ./../../programs/boards/stm32f0discovery/"$i"/*.{lisp,rb,c,txt} .
+        cp ./../../boards/stm32f0discovery/*.{lisp,rb,c,txt,s,ld} .
+      )
+      ./../../wombat.rb ./main.lisp
+      pwd
+      ocamlc -c ./wombat.ml
+      # the compilation below is not expected to succeed; it is merely
+      # used to verify the wombat translation. the only errors
+      # reported should relate to "used but never defined" functions.
+      $CB_CC $CB_CC_FLAGS -c -o /dev/null ./wombat.c || true
+      cp ./../../collector.c ./
+      $CB_CC $CB_CC_FLAGS -DCOLLECTOR_SHAM=5 -DCOLLECTOR_ARCH_ARM_EABI_THUMB -c -o ./driver.{o,c}
+      $CB_OD -xD ./driver.o | sed -e 's/\t/    /g' >./driver.o.s
+      $CB_AS $CB_AS_FLAGS -o startup.{o,s}
+      $CB_LD -T ./linker_script.ld -nostartfiles -o ./driver.elf {startup,driver}.o
+      $CB_OD -xD ./driver.elf | sed -e 's/\t/    /g' >./driver.elf.s
+      if egrep -q ' contrail_buffer$' ./driver.elf.s
+      then
+        cat ./driver.elf.s | egrep ' contrail_buffer$' | cut -d " " -f 1 >./contrail.offset
+      fi
+      echo 8000 >./contrail.length
+      $CB_OC -O binary driver.{elf,bin}
+      $CB_OD -D -bbinary -marm ./driver.bin -Mforce-thumb | sed -e 's/\t/    /g' >./driver.bin.s
+    )
   done
 fi
 
