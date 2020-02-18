@@ -301,7 +301,8 @@ static void collector_gc_with_stack(CollectorExternal* ce, uintptr_t* sp_lo, uin
 #define collector_xlat(what_pv) ({                                      \
       uintptr_t* xlat_pv = (what_pv);                                   \
       uintptr_t xlat_idx = COLLECTOR_PTRDIFF(xlat_pv, ptr);             \
-      uintptr_t xlat_idx_page = (xlat_idx >> COLLECTOR_SHAM); uintptr_t xlat_idx_resd = (xlat_idx & ((1UL << COLLECTOR_SHAM) - 1)); \
+      uintptr_t xlat_idx_page = (xlat_idx >> COLLECTOR_SHAM);           \
+      uintptr_t xlat_idx_resd = (xlat_idx & ((1UL << COLLECTOR_SHAM) - 1)); \
       uintptr_t xlat_pop = 0;                                           \
       if (xlat_idx_page > 0) {                                          \
         xlat_pop = ce->cmap.bas[(xlat_idx_page - 1)];                   \
@@ -526,6 +527,36 @@ asm(".text\n"
 
 #endif
 
+#ifdef COLLECTOR_ARCH_ARM_EABI_THUMB
+
+asm(".text\n"
+    ".global collector_gc_firewall\n"
+    ".thumb_func\n"
+    "collector_gc_firewall:\n"
+    "push {r2, r4, r5, r6, r7, lr}\n"
+    "mov r2, r8\n"
+    "push {r2}\n"
+    "mov r2, r9\n"
+    "push {r2}\n"
+    "mov r2, r10\n"
+    "push {r2}\n"
+    "mov r2, r11\n"
+    "push {r2}\n"
+    "mov r2, sp\n"
+    "str r2, [r1]\n"
+    "bl collector_gc_firewall_exterior\n"
+    "pop {r2}\n"
+    "mov r11, r2\n"
+    "pop {r2}\n"
+    "mov r10, r2\n"
+    "pop {r2}\n"
+    "mov r9, r2\n"
+    "pop {r2}\n"
+    "mov r8, r2\n"
+    "pop {r2, r4, r5, r6, r7, pc}\n");
+
+#endif
+
 static uintptr_t* collector_malloc_failed(CollectorExternal* ce, uintptr_t len)
 {
   ce->heap.ptr += len;
@@ -672,6 +703,44 @@ asm(".text\n"
     "addiu $sp, $sp, 64\n"
     "jr $ra\n"
     ".end collector_invoke_firewall\n");
+
+#endif
+
+#ifdef COLLECTOR_ARCH_ARM_EABI_THUMB
+
+asm(".text\n"
+    ".global collector_invoke_firewall\n"
+    ".thumb_func\n"
+    "collector_invoke_firewall:\n"
+    "push {r2, r4, r5, r6, r7, lr}\n"
+    "mov r2, r8\n"
+    "push {r2}\n"
+    "mov r2, r9\n"
+    "push {r2}\n"
+    "mov r2, r10\n"
+    "push {r2}\n"
+    "mov r2, r11\n"
+    "push {r2}\n"
+    "mov r2, sp\n"
+    "str r2, [r1]\n"
+    "mov r4, #0\n"
+    "mov r5, r4\n"
+    "mov r6, r4\n"
+    "mov r7, r4\n"
+    "mov r8, r4\n"
+    "mov r9, r4\n"
+    "mov r10, r4\n"
+    "mov r11, r4\n"
+    "bl collector_invoke_firewall_interior\n"
+    "pop {r2}\n"
+    "mov r11, r2\n"
+    "pop {r2}\n"
+    "mov r10, r2\n"
+    "pop {r2}\n"
+    "mov r9, r2\n"
+    "pop {r2}\n"
+    "mov r8, r2\n"
+    "pop {r2, r4, r5, r6, r7, pc}\n");
 
 #endif
 

@@ -1,5 +1,9 @@
 /* copyright (c) 2020 by Andrei Borac */
 
+#ifndef HOST_IS_LINUX
+#error "stdio requires a linux host"
+#endif
+
 #define STDIO_CHECK_TOP(x, t) assure((((x)-(t)) == (((CollectorExternal*)(wombat_external))->heap.ptr)))
 
 WOMBAT_BUILTIN static uintptr_t* wombat_builtin_system_minus_blob_minus_address(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cell_blob, uintptr_t* cell_offs, uintptr_t* cell_retv, uintptr_t* cell_float) {

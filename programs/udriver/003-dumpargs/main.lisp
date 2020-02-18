@@ -1,5 +1,6 @@
-;; copyright (c) 2020 by andrei borac
+;; copyright (c) 2020 by Andrei Borac
 
+(require "abort.lisp")
 (require "stdlib.lisp")
 (require "stdopt.lisp")
 (require "stdio.lisp")

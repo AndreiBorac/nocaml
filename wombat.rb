@@ -494,8 +494,10 @@ def calculate_free_variables(node, available)
   end
 end
 
+$underscore_ctr = 0;
+
 def c_ify(name)
-  return "_" if (name == "_");
+  return "_#{$underscore_ctr += 1}" if (name == "_");
   
   return name.chars.map{|x|
     if (x == "-")
@@ -976,6 +978,12 @@ def code_generate(node, enclosing)
   end
 end
 
+$c_files = [];
+
+def wombat_register_c_file(name)
+  $c_files << name;
+end
+
 def main()
   toplevel = tokenize(ARGV[0], IO.read(ARGV[0]));
   p toplevel;
@@ -1169,7 +1177,9 @@ def main()
   finale += $c_lambda_impl;
   finale += $c_defun_impl;
   
-  IO.write("wombat.c", finale.join("\n"));
+  IO.write("wombat.c", (finale.join("\n") + "\n"));
+  
+  IO.write("wombat.include.c", ($c_files.uniq.map{|i| "#include \"#{i}\""; }.join("\n") + "\n"));
 end
 
 main;
