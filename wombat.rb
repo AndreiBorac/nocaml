@@ -11,6 +11,14 @@ nil;
 
 require("strscan");
 
+def alistget(list, key)
+  list.each{|pair|
+    raise if (!(pair.length == 2));
+    return pair[1] if (pair[0] == key);
+  };
+  return nil;
+end
+
 def is_identifier(token)
   return (/^[a-zA-Z_][a-zA-Z0-9_-]*$/.match(token).nil?.!);
 end
@@ -66,6 +74,8 @@ def tokenize(filename, codes)
         [ "let", :let ],
         [ "lambda", :lambda ],
         [ "case", :case ],
+        [ "case-fields", :case_fields ],
+        [ "adjust-fields", :adjust_fields ],
         [ "progn", :progn ],
         [ "selfcall", :selfcall ],
         [ "Blob", :blobcall ],
@@ -172,6 +182,12 @@ def tokenmapify(token)
   return match;
 end
 
+def tokenmapify_inject(match, token)
+  match = match.clone;
+  $tokenmap[match.object_id] = token;
+  return match;
+end
+
 def parse_formals(inp)
   formals = [];
   
@@ -231,6 +247,31 @@ def parse_parenthesized_expression(inp)
     end
     force_shift_expect(inp, :closeparen);
     return [ :case, tokenmapify(token), expr, cases ];
+  when :case_fields
+    expr = parse_expression(inp);
+    force_shift_expect(inp, :openparen);
+    force_shift_expect(inp, :openparen);
+    constructor = force_shift_expect(inp, :identifier);
+    bindings = [];
+    while (force_peek(inp)[0] != :closeparen)
+      bindings << [ force_shift_expect(inp, :stringliteral)[1][1..-2], tokenmapify(force_shift_expect(inp, :identifier)) ];
+    end
+    force_shift_expect(inp, :closeparen);
+    expr2 = parse_expression(inp);
+    force_shift_expect(inp, :closeparen);
+    force_shift_expect(inp, :closeparen);
+    return [ :case_fields, tokenmapify(token), expr, tokenmapify(constructor), bindings, expr2 ];
+  when :adjust_fields
+    expr = parse_expression(inp);
+    constructor = force_shift_expect(inp, :identifier);
+    bindings = [];
+    while (force_peek(inp)[0] != :closeparen)
+      name = force_shift_expect(inp, :stringliteral)[1][1..-2];
+      expr2 = parse_expression(inp);
+      bindings << [ name, expr2 ];
+    end
+    force_shift_expect(inp, :closeparen);
+    return [ :adjust_fields, tokenmapify(token), expr, tokenmapify(constructor), bindings ];
   when :progn
     exprs = [];
     while (force_peek(inp)[0] != :closeparen)
@@ -312,6 +353,7 @@ $native_constructors = {}; # name => arity
 $primordials = {}; # name => impl
 $builtins = {}; # name => arity
 $defuns = {}; # name => true
+$fields = {}; # name => list(name)
 
 def wombat_register_constructor(name, arity)
   raise if (!(is_identifier(name)));
@@ -356,6 +398,83 @@ def wombat_register_defun(name, arity)
   
   $globals[name] = :defun;
   $defuns[name] = arity;
+end
+
+def wombat_register_fields(name, list)
+  raise if ($globals[name] != :constructor);
+  raise if (list.uniq.length != list.length);
+  
+  $fields[name] = list;
+end
+
+$ctr = 0;
+
+def convert_fields(node)
+  case node[0]
+  when :defuns
+    return [ :defuns, node[1].map{|i| convert_fields(i); } ];
+  when :defun
+    return [ :defun, node[1], node[2], node[3], convert_fields(node[4]) ];
+  when :identifier
+    return node;
+  when :blobcall
+    return node;
+  when :selfcall
+    return node;
+  when :let
+    bindings = node[2].map{|bound, expr| [ bound, convert_fields(expr) ]; };
+    body = convert_fields(node[3]);
+    return [ :let, node[1], bindings, body ];
+  when :lambda
+    return [ :lambda, node[1], node[2], convert_fields(node[3]) ];
+  when :case
+    return [ :case, node[1], convert_fields(node[2]), node[3].map{|constructor, bindings, expr2| [ constructor, bindings, convert_fields(expr2) ]; } ];
+  when :case_fields
+    expr1 = node[2];
+    constructor = node[3];
+    fields = $fields[constructor];
+    raise if (fields.nil?);
+    bindings = node[4];
+    raise if (!(bindings.map{|pair| pair[0]; }.uniq.length == bindings.length));
+    expr2 = node[5];
+    bindings2 = fields.map{|field|
+      varname = alistget(bindings, field);
+      if (varname.nil?)
+        "_";
+      else
+        varname;
+      end
+    };
+    return [ :case, node[1], convert_fields(expr1), [ [ constructor, bindings2, convert_fields(expr2) ] ] ];
+  when :adjust_fields
+    expr = node[2];
+    constructor = node[3];
+    fields = $fields[constructor];
+    raise if (fields.nil?);
+    bindings = node[4];
+    raise if (!(bindings.map{|pair| pair[0]; }.uniq.length == bindings.length));
+    tmp = ($ctr += 1);
+    bindings2 = bindings.map{|pair|
+      bound, expr2, = pair;
+      index = fields.index(bound);
+      raise if (index.nil?);
+      [ "wombat_gensym_#{tmp}_#{index}", convert_fields(expr2) ];
+    };
+    consargs = fields.map.with_index{|field, index|
+      [ :identifier, tokenmapify_inject("wombat_gensym_#{tmp}_#{index}", node[1]) ];
+    };
+    bindings3 = fields.map.with_index{|field, index|
+      "wombat_gensym_#{tmp}_#{index}";
+    };
+    let = [ :let, node[1], bindings2, [ :funcall, node[1], [ [ :identifier, tokenmapify_inject(constructor, node[1]) ] ] + consargs ] ];
+    return [ :case, node[1], convert_fields(expr), [ [ constructor, bindings3, let ] ] ];
+  when :progn
+    return [ :progn, node[1], node[2].map{|expr| convert_fields(expr); } ];
+  when :funcall
+    return [ :funcall, node[1], node[2].map{|expr| convert_fields(expr); } ];
+  else
+    raise;
+  end
 end
 
 def convert_progn(node)
@@ -759,8 +878,6 @@ def code_generate_ocamlx(node, enclosing)
   end
 end
 
-$ctr = 0;
-
 $c_constructors = [];
 $c_lambda_constructors = [];
 
@@ -1008,6 +1125,10 @@ def main()
   p toplevel;
   
   # TODO: validation passes
+  
+  toplevel = convert_fields(toplevel);
+  p "after convert_fields";
+  p toplevel;
   
   toplevel = convert_progn(toplevel);
   p "after convert_progn";
