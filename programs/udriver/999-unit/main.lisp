@@ -28,6 +28,16 @@
 (defun list9 (a b c d e f g h i)
   (ListCons a (ListCons b (ListCons c (ListCons d (ListCons e (ListCons f (ListCons g (ListCons h (ListCons i list-fini))))))))))
 
+(defun and3 (a b c)
+  (case a
+        ((False) false)
+        ((True) (case b
+                      ((False) false)
+                      ((True) c)))))
+
+(defun record-eq (p q)
+  (case p ((Record pa pb pc) (case q ((Record qa qb qc) (and3 (int-eq pa qa) (int-eq pb qb) (int-eq pc qc)))))))
+
 (defun main (argv envp)
   (let ((stdio (stdio-new)))
     (progn
@@ -121,4 +131,15 @@
                                                        (case (random-next rng6)
                                                              ((Pair val7 rng7)
                                                               (trace val7))))))))))))))))))))
+      ;; records
+      (assert stdio
+              str-test-records-1
+              (lambda ()
+                (let ((r (Record int-1 int-2 int-3)))
+                  (record-eq (case-fields r ((Record "grape" r-g "orange" r-o "apple" r-a) (Record r-g r-o r-a))) (Record int-3 int-2 int-1)))))
+      (assert stdio
+              str-test-records-2
+              (lambda ()
+                (let ((r (Record int-1 int-2 int-3)))
+                  (record-eq (adjust-fields r Record "grape" int-1 "orange" int-2 "apple" int-3) (Record int-3 int-2 int-1)))))
       zero)))
