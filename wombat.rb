@@ -435,6 +435,9 @@ def convert_fields(node)
     fields = $fields[constructor];
     raise if (fields.nil?);
     bindings = node[4];
+    bindings.each{|pair|
+      raise("no such field '#{pair[0]}'") if (fields.index(pair[0]).nil?);
+    };
     raise if (!(bindings.map{|pair| pair[0]; }.uniq.length == bindings.length));
     expr2 = node[5];
     bindings2 = fields.map{|field|
@@ -457,7 +460,7 @@ def convert_fields(node)
     bindings2 = bindings.map{|pair|
       bound, expr2, = pair;
       index = fields.index(bound);
-      raise if (index.nil?);
+      raise("no such field '#{bound}'") if (index.nil?);
       [ "wombat_gensym_#{tmp}_#{index}", convert_fields(expr2) ];
     };
     consargs = fields.map.with_index{|field, index|
@@ -660,7 +663,7 @@ type wombatx_blob =
 let wombatx_construct_blob (x : 'a) : wombatx_blob = failwith "oops";;
 EOF
   
-  (0...10).each{|i|
+  (0...30).each{|i|
     s = (1..i).map{|j| "'a#{j}"; }.join(", ");
     s = "(#{s})" if (s.empty?.!);
     t = (1..i).map{|j| "'a#{j}"; }.join(" * ");

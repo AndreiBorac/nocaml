@@ -44,3 +44,25 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_system_minus_write(WombatExterna
   cell_retv[1] = sy6(cell_fd[1], cell_addr[1], cell_count[1], 0, 0, 0, SYS_write);
   return cell_retv;
 }
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_system_minus_open(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cell_pathname, uintptr_t* cell_flags, uintptr_t* cell_mode, uintptr_t* cell_retv) {
+  STDIO_CHECK_TOP(cell_retv, 0);
+  uintptr_t bit = (1UL << ((8*sizeof(uintptr_t))-1));
+  assure((cell_pathname[0] & bit) != 0);
+  uint8_t* pathname = ((uint8_t*)(&(cell_pathname[1])));
+  uintptr_t pathname_len = (cell_pathname[0] - bit);
+  assure(pathname_len > 0);
+  assure(pathname[(pathname_len - 1)] == '\0');
+  assure(cell_flags[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer);
+  assure(cell_mode[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer);
+  cell_retv[1] = sy6(((uintptr_t)(pathname)), cell_flags[1], cell_mode[1], 0, 0, 0, SYS_open);
+  return cell_retv;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_system_minus_close(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cell_fd, uintptr_t* cell_retv) {
+  STDIO_CHECK_TOP(cell_retv, 0);
+  assure(cell_fd[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer);
+  assure(cell_retv[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer);
+  cell_retv[1] = sy6(cell_fd[1], 0, 0, 0, 0, 0, SYS_close);
+  return cell_retv;
+}

@@ -62,6 +62,8 @@ asm(".text\n"
 #define SYS_read 0
 #define SYS_write 1
 #define SYS_mmap 9
+#define SYS_open 2
+#define SYS_close 3
 
 #define PROT_READ 1
 #define PROT_WRITE 2
@@ -85,6 +87,8 @@ asm(".text\n"
 #define SYS_read 4003
 #define SYS_write 4004
 #define SYS_mmap 4210 // use mmap2
+#define SYS_open 4005
+#define SYS_close 4006
 
 #define PROT_READ 1
 #define PROT_WRITE 2
@@ -109,6 +113,8 @@ asm(".text\n"
 #define SYS_read 3
 #define SYS_write 4
 #define SYS_mmap 192 // use mmap2
+#define SYS_open 5
+#define SYS_close 6
 
 #define PROT_READ 1
 #define PROT_WRITE 2

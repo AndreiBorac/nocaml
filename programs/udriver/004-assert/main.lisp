@@ -3,6 +3,7 @@
 (require "abort.lisp")
 (require "stdlib.lisp")
 (require "stdopt.lisp")
+(require "pitab.lisp")
 (require "stdio.lisp")
 
 (defun assert (stdio str f)

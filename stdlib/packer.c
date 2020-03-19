@@ -21,7 +21,7 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_packer_minus_pack_minus_16(Womba
   uintptr_t bit = (1UL << ((8*sizeof(uintptr_t))-1));
   assure((cellb[0] & bit) != 0);
   uintptr_t len = (cellb[0] - bit);
-  assure(len >= 1);
+  assure(len >= 2);
   *((uint16_t*)(&(cellb[1]))) = ((uint16_t)(cella[1]));
   return cellb;
 }
@@ -33,7 +33,7 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_packer_minus_pack_minus_32(Womba
   uintptr_t bit = (1UL << ((8*sizeof(uintptr_t))-1));
   assure((cellb[0] & bit) != 0);
   uintptr_t len = (cellb[0] - bit);
-  assure(len >= 1);
+  assure(len >= 4);
   *((uint32_t*)(&(cellb[1]))) = ((uint32_t)(cella[1]));
   return cellb;
 }
@@ -57,7 +57,7 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_packer_minus_unpack_minus_16(Wom
   uintptr_t bit = (1UL << ((8*sizeof(uintptr_t))-1));
   assure((cella[0] & bit) != 0);
   uintptr_t len = (cella[0] - bit);
-  assure(len >= 1);
+  assure(len >= 2);
   cellb[1] = (*((uint16_t*)(&(cella[1]))));
   return cellb;
 }
@@ -69,7 +69,7 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_packer_minus_unpack_minus_32(Wom
   uintptr_t bit = (1UL << ((8*sizeof(uintptr_t))-1));
   assure((cella[0] & bit) != 0);
   uintptr_t len = (cella[0] - bit);
-  assure(len >= 1);
+  assure(len >= 4);
   cellb[1] = (*((uint32_t*)(&(cella[1]))));
   return cellb;
 }

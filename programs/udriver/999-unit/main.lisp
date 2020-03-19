@@ -3,8 +3,8 @@
 (require "abort.lisp")
 (require "stdlib.lisp")
 (require "stdopt.lisp")
-(require "stdio.lisp")
 (require "pitab.lisp")
+(require "stdio.lisp")
 (require "amoqueue.lisp")
 (require "random.lisp")
 
@@ -19,8 +19,17 @@
           ((False) (system-exit one))
           ((True) unit))))
 
+(defun list1 (a)
+  (ListCons a list-fini))
+
+(defun list2 (a b)
+  (ListCons a (ListCons b list-fini)))
+
 (defun list3 (a b c)
   (ListCons a (ListCons b (ListCons c list-fini))))
+
+(defun list5 (a b c d e)
+  (ListCons a (ListCons b (ListCons c (ListCons d (ListCons e list-fini))))))
 
 (defun list6 (a b c d e f)
   (ListCons a (ListCons b (ListCons c (ListCons d (ListCons e (ListCons f list-fini)))))))
@@ -142,4 +151,20 @@
               (lambda ()
                 (let ((r (Record int-1 int-2 int-3)))
                   (record-eq (adjust-fields r Record "grape" int-1 "orange" int-2 "apple" int-3) (Record int-3 int-2 int-1)))))
+      (assert stdio
+              str-test-separate-1
+              (lambda ()
+                (list-eq int-eq (separate list-fini int-0) list-fini)))
+      (assert stdio
+              str-test-separate-2
+              (lambda ()
+                (list-eq int-eq (separate (list1 int-1) int-0) (list1 int-1))))
+      (assert stdio
+              str-test-separate-3
+              (lambda ()
+                (list-eq int-eq (separate (list2 int-1 int-2) int-0) (list3 int-1 int-0 int-2))))
+      (assert stdio
+              str-test-separate-4
+              (lambda ()
+                (list-eq int-eq (separate (list3 int-1 int-2 int-3) int-0) (list5 int-1 int-0 int-2 int-0 int-3))))
       zero)))
