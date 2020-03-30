@@ -56,6 +56,10 @@ wombat_register_builtin("int-lt", 2);
 wombat_register_builtin("int-lte", 2);
 wombat_register_builtin("int-gt", 2);
 wombat_register_builtin("int-gte", 2);
+wombat_register_builtin("int-lt-signed", 2);
+wombat_register_builtin("int-lte-signed", 2);
+wombat_register_builtin("int-gt-signed", 2);
+wombat_register_builtin("int-gte-signed", 2);
 wombat_register_builtin("int-add", 3);
 wombat_register_builtin("int-sub", 3);
 wombat_register_builtin("int-or", 3);
@@ -66,6 +70,8 @@ wombat_register_builtin("int-shra", 3);
 wombat_register_builtin("int-shl", 3);
 wombat_register_builtin("int-min", 2);
 wombat_register_builtin("int-max", 2);
+wombat_register_builtin("int-mul", 3);
+wombat_register_builtin("int-divmod", 3);
 
 wombat_ocaml(<<EOF);
 let wombat_primordial_blob_minus_empty = Wombat_Blob;;
@@ -129,6 +135,10 @@ let wombat_builtin_int_minus_lt (x : wombat_integer) (y : wombat_integer) : womb
 let wombat_builtin_int_minus_lte (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
 let wombat_builtin_int_minus_gt (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
 let wombat_builtin_int_minus_gte (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
+let wombat_builtin_int_minus_lt_minus_signed (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
+let wombat_builtin_int_minus_lte_minus_signed (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
+let wombat_builtin_int_minus_gt_minus_signed (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
+let wombat_builtin_int_minus_gte_minus_signed (x : wombat_integer) (y : wombat_integer) : wombat_bool = failwith "oops";;
 let wombat_builtin_int_minus_add (x : wombat_integer) (y : wombat_integer) (z : wombat_integer) : wombat_integer = failwith "oops";;
 let wombat_builtin_int_minus_sub (x : wombat_integer) (y : wombat_integer) (z : wombat_integer) : wombat_integer = failwith "oops";;
 let wombat_builtin_int_minus_or (x : wombat_integer) (y : wombat_integer) (z : wombat_integer) : wombat_integer = failwith "oops";;
@@ -139,6 +149,8 @@ let wombat_builtin_int_minus_shra (x : wombat_integer) (y : wombat_integer) (z :
 let wombat_builtin_int_minus_shl (x : wombat_integer) (y : wombat_integer) (z : wombat_integer) : wombat_integer = failwith "oops";;
 let wombat_builtin_int_minus_min (x : wombat_integer) (y : wombat_integer) : wombat_integer = failwith "oops";;
 let wombat_builtin_int_minus_max (x : wombat_integer) (y : wombat_integer) : wombat_integer = failwith "oops";;
+let wombat_builtin_int_minus_mul (x : wombat_integer) (y : wombat_integer) (z : wombat_integer) : wombat_integer = failwith "oops";;
+let wombat_builtin_int_minus_divmod (x : wombat_integer) (y : wombat_integer) (z : (wombat_integer, wombat_integer) wombat_pair) : (wombat_integer, wombat_integer) wombat_pair = failwith "oops";;
 EOF
 
 wombat_ocaml(<<EOF);
@@ -203,6 +215,10 @@ let wombatx_builtin_int_minus_lt (args : (wombatx_integer, wombatx_integer) womb
 let wombatx_builtin_int_minus_lte (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
 let wombatx_builtin_int_minus_gt (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
 let wombatx_builtin_int_minus_gte (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
+let wombatx_builtin_int_minus_lt_minus_signed (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
+let wombatx_builtin_int_minus_lte_minus_signed (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
+let wombatx_builtin_int_minus_gt_minus_signed (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
+let wombatx_builtin_int_minus_gte_minus_signed (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_bool = failwith "oops";;
 let wombatx_builtin_int_minus_add (args : (wombatx_integer, wombatx_integer, wombatx_integer) wombatxvector3) : wombatx_integer = failwith "oops";;
 let wombatx_builtin_int_minus_sub (args : (wombatx_integer, wombatx_integer, wombatx_integer) wombatxvector3) : wombatx_integer = failwith "oops";;
 let wombatx_builtin_int_minus_or (args : (wombatx_integer, wombatx_integer, wombatx_integer) wombatxvector3) : wombatx_integer = failwith "oops";;
@@ -213,6 +229,8 @@ let wombatx_builtin_int_minus_shra (args : (wombatx_integer, wombatx_integer, wo
 let wombatx_builtin_int_minus_shl (args : (wombatx_integer, wombatx_integer, wombatx_integer) wombatxvector3) : wombatx_integer = failwith "oops";;
 let wombatx_builtin_int_minus_min (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_integer = failwith "oops";;
 let wombatx_builtin_int_minus_max (args : (wombatx_integer, wombatx_integer) wombatxvector2) : wombatx_integer = failwith "oops";;
+let wombatx_builtin_int_minus_mul (args : (wombatx_integer, wombatx_integer, wombatx_integer) wombatxvector3) : wombatx_integer = failwith "oops";;
+let wombatx_builtin_int_minus_divmod (args : (wombatx_integer, wombatx_integer, (wombatx_integer, wombatx_integer) wombatx_pair) wombatxvector3) : (wombatx_integer, wombatx_integer) wombatx_pair = failwith "oops";;
 EOF
 
 $stdlib_registered_integer_primordials = {};
@@ -229,7 +247,7 @@ EOF
   else
     $stdlib_registered_integer_primordials[value] = name;
     wombat_register_primordial(name, <<EOF);
-static const uintptr_t wombat_primordial_#{c_ify(name)}[2] = { WOMBAT_NATIVE_CONSTRUCTOR_Integer, #{value} };
+static const uintptr_t wombat_primordial_#{c_ify(name)}[2] = { WOMBAT_NATIVE_CONSTRUCTOR_Integer, ((uintptr_t)(#{value})) };
 EOF
   end
   
@@ -255,6 +273,7 @@ stdlib_register_integer_primordial("int-6", 6);
 stdlib_register_integer_primordial("int-7", 7);
 stdlib_register_integer_primordial("int-8", 8);
 stdlib_register_integer_primordial("int-9", 9);
+stdlib_register_integer_primordial("int-10", 10);
 
 $stdlib_registered_blob_primordials = {};
 

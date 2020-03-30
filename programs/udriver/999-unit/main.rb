@@ -19,6 +19,7 @@ stdlib_register_integer_primordial("int-997", 997);
   [ "pitab-coalesce", 1 ],
   [ "pitab-head-rest", 1 ],
   [ "records", 2 ],
+  [ "separate", 4 ],
 ].each{|pair|
   name, nr, = pair;
   (1..nr).each{|i|

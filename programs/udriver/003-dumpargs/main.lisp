@@ -3,8 +3,8 @@
 (require "abort.lisp")
 (require "stdlib.lisp")
 (require "stdopt.lisp")
-(require "stdio.lisp")
 (require "pitab.lisp")
+(require "stdio.lisp")
 
 (defun main (argv envp)
   (let ((args (pitab-concat-all (map (lambda (argi) (pitab-new-blob argi)) argv))))

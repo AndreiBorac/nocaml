@@ -1,6 +1,9 @@
 /* copyright (c) 2020 by Andrei Borac */
 
 #define STDLIB_CHECK_TOP(x) assure(((x) == (((CollectorExternal*)(wombat_external))->heap.ptr)))
+#define STDLIB_CHECK_TOP_WITH_OFFSET(x, o) assure(((x) == ((((CollectorExternal*)(wombat_external))->heap.ptr) + o)))
+
+#define STDLIB_SIGNED(x) ((intptr_t)(x))
 
 WOMBAT_BUILTIN static uintptr_t wombat_measure(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_object) {
   assure(wombat_object[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer);
@@ -89,7 +92,35 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gte(WombatExternal* wo
 {
   assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
   assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
-  return ((cella[1] >= cellb[1]) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
+  return ((STDLIB_SIGNED(cella[1]) >= STDLIB_SIGNED(cellb[1])) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lt_minus_signed(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((STDLIB_SIGNED(cella[1]) < STDLIB_SIGNED(cellb[1])) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_lte_minus_signed(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((STDLIB_SIGNED(cella[1]) <= STDLIB_SIGNED(cellb[1])) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gt_minus_signed(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((STDLIB_SIGNED(cella[1]) > STDLIB_SIGNED(cellb[1])) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_gte_minus_signed(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb)
+{
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  return ((STDLIB_SIGNED(cella[1]) >= STDLIB_SIGNED(cellb[1])) ? ((uintptr_t*)(wombat_primordial_true)) : ((uintptr_t*)(wombat_primordial_false)));
 }
 
 WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_add(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
@@ -184,4 +215,31 @@ WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_max(WombatExternal* wo
   assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
   assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
   return (cella[1] > cellb[1] ? cella : cellb);
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_mul(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cellc[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  cellc[1] = (cella[1] * cellb[1]);
+  return cellc;
+}
+
+WOMBAT_BUILTIN static uintptr_t* wombat_builtin_int_minus_divmod(WombatExternal* wombat_external WOMBAT_UNUSED, uintptr_t* wombat_context WOMBAT_UNUSED, uintptr_t* cella, uintptr_t* cellb, uintptr_t* cellc)
+{
+  STDLIB_CHECK_TOP(cellc);
+  assure((cellc[0] == WOMBAT_CONSTRUCTOR_Pair));
+  uintptr_t* q = ((uintptr_t*)(cellc[1]));
+  uintptr_t* r = ((uintptr_t*)(cellc[2]));
+  STDLIB_CHECK_TOP_WITH_OFFSET(r, 3);
+  STDLIB_CHECK_TOP_WITH_OFFSET(q, 5);
+  assure((cella[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  assure((cellb[0] == WOMBAT_NATIVE_CONSTRUCTOR_Integer));
+  uintptr_t a = cella[1];
+  uintptr_t b = cellb[1];
+  q[1] = (a / b);
+  r[1] = (a % b);
+  return cellc;
 }
