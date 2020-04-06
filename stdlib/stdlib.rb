@@ -36,9 +36,10 @@ EOF
 # Pair
 wombat_register_constructor("Pair", 2);
 
-# Vector{3,4}
+# Vector{3,4,5}
 wombat_register_constructor("Vector3", 3);
 wombat_register_constructor("Vector4", 4);
+wombat_register_constructor("Vector5", 5);
 
 # List
 wombat_register_constructor("ListFini", 0);
@@ -110,6 +111,12 @@ type ('a, 'b, 'c, 'd) wombat_vector4 =
 ;;
 
 let wombat_constructor_Vector4 (a : 'a) (b : 'b) (c : 'c) (d : 'd) : ('a, 'b, 'c, 'd) wombat_vector4 = failwith "oops";;
+
+type ('a, 'b, 'c, 'd, 'e) wombat_vector5 =
+| Wombat_Vector5 of 'a * 'b * 'c * 'd * 'e
+;;
+
+let wombat_constructor_Vector5 (a : 'a) (b : 'b) (c : 'c) (d : 'd) (e : 'e) : ('a, 'b, 'c, 'd, 'e) wombat_vector5 = failwith "oops";;
 
 type 'a wombat_list =
 | Wombat_ListFini
@@ -186,10 +193,16 @@ type ('a, 'b, 'c) wombatx_vector3 =
 let wombatx_constructor_Vector3 (args : ('a, 'b, 'c) wombatxvector3) : ('a, 'b, 'c) wombatx_vector3 = failwith "oops";;
 
 type ('a, 'b, 'c, 'd) wombatx_vector4 =
-| Wombatx_Vector4 of 'a * 'b * 'c *'d
+| Wombatx_Vector4 of 'a * 'b * 'c * 'd
 ;;
 
 let wombatx_constructor_Vector4 (args : ('a, 'b, 'c, 'd) wombatxvector4) : ('a, 'b, 'c, 'd) wombatx_vector4 = failwith "oops";;
+
+type ('a, 'b, 'c, 'd, 'e) wombatx_vector5 =
+| Wombatx_Vector5 of 'a * 'b * 'c * 'd * 'e
+;;
+
+let wombatx_constructor_Vector5 (args : ('a, 'b, 'c, 'd, 'e) wombatxvector5) : ('a, 'b, 'c, 'd, 'e) wombatx_vector5 = failwith "oops";;
 
 type 'a wombatx_list =
 | Wombatx_ListFini
@@ -288,14 +301,15 @@ def stdlib_register_blob_primordial(name, value)
 #define wombat_primordial_#{c_ify(name)} wombat_primordial_#{c_ify(name2)}
 EOF
   else
-    $stdlib_registered_integer_primordials[value] = name;
+    $stdlib_registered_blob_primordials[value] = name;
     c_tag = "((1UL << ((8*sizeof(uintptr_t))-1)) | #{value.length})";
     wombat_register_primordial(name, <<EOF);
-struct {
+struct wombat_raw_primordial_#{c_ify(name)}_type {
   uintptr_t tag;
   uint8_t chr[((#{value.length}+sizeof(uintptr_t)-1)/sizeof(uintptr_t))*sizeof(uintptr_t)];
-} wombat_raw_primordial_#{c_ify(name)} = { #{c_tag}, { #{value.chars.map{|i| i.ord; }.join(", ")} } };
-static const uintptr_t* wombat_primordial_#{c_ify(name)} = (&(wombat_raw_primordial_#{c_ify(name)}.tag));
+};
+static const struct wombat_raw_primordial_#{c_ify(name)}_type wombat_raw_primordial_#{c_ify(name)} = { #{c_tag}, { #{value.chars.map{|i| i.ord; }.join(", ")} } };
+#define wombat_primordial_#{c_ify(name)} ((uintptr_t*)(&(wombat_raw_primordial_#{c_ify(name)}.tag)))
 EOF
   end
   
@@ -305,3 +319,30 @@ let wombatx_primordial_#{c_ify(name)} = Wombatx_Blob;;
 EOF
 end
 
+def stdlib_register_blob_list_primordial(name, values)
+  values.each_with_index{|value, index|
+    stdlib_register_blob_primordial("#{name}-#{index}-elem", value);
+  };
+  
+  prior = "list_minus_fini";
+  
+  (0...(values.length)).to_a.reverse.each{|index|
+    tailname = "#{name}-#{index}-list";
+    current = c_ify("#{name}-#{index}-elem");
+    content = [];
+    wombat_register_primordial(tailname, <<EOF);
+static const uintptr_t wombat_primordial_#{c_ify(tailname)}[] = { WOMBAT_CONSTRUCTOR_ListCons, ((uintptr_t)(wombat_primordial_#{current})), ((uintptr_t)(wombat_primordial_#{prior})) };
+EOF
+    if (index == 0)
+      wombat_register_primordial(name, <<EOF);
+#define wombat_primordial_#{c_ify(name)} wombat_primordial_#{c_ify(tailname)}
+EOF
+    end
+    prior = c_ify(tailname);
+  };
+  
+  wombat_ocaml(<<EOF);
+let wombat_primordial_#{c_ify(name)} : wombat_blob wombat_list = Wombat_ListFini;;
+let wombatx_primordial_#{c_ify(name)} : wombatx_blob wombatx_list = Wombatx_ListFini;;
+EOF
+end

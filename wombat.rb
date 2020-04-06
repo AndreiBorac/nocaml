@@ -378,7 +378,7 @@ end
 def wombat_register_primordial(name, impl)
   raise if (!(is_identifier(name)));
   
-  raise if ($globals[name].nil?.!);
+  raise("name=#{name}") if ($globals[name].nil?.!);
   
   $globals[name] = :primordial;
   $primordials[name] = impl;
@@ -663,7 +663,7 @@ type wombatx_blob =
 let wombatx_construct_blob (x : 'a) : wombatx_blob = failwith "oops";;
 EOF
   
-  (0...30).each{|i|
+  (0...40).each{|i|
     s = (1..i).map{|j| "'a#{j}"; }.join(", ");
     s = "(#{s})" if (s.empty?.!);
     t = (1..i).map{|j| "'a#{j}"; }.join(" * ");
